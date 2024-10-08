@@ -5,8 +5,7 @@ using TMPro;
 using System;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
-using static AppData;
-using System.Collections;
+
 
 public class MechanismSceneHandler : MonoBehaviour
 {
@@ -23,22 +22,21 @@ public class MechanismSceneHandler : MonoBehaviour
     public TMP_Text hocVal;
     public TMP_Text fktVal;
 
-    public Button exitButton;
+    public Button exitButton;   
     public Button nextButton;
-    private static bool scene = false;
-    public static readonly string[] MECHANISMS = new string[] { "WFE", "WUD", "FPS", "HOC"};
-
-    private string filePath = Application.dataPath + "/data/config_data.csv";
-
-    private bool toggleSelected = false;  // Variable to track toggle selection state
+    private string filePath = Application.dataPath+"/data/config_data.csv";
 
     void Start()
     {
-        //AttachToggleListeners();
-        string csvPath = Application.dataPath + "/data/sessions/sessions.csv";
+        string csvPath =Application.dataPath+ "/data/sessions/sessions.csv";
+
+       
         SessionDataHandler sessionHandler = new SessionDataHandler(csvPath);
+
+       
         Dictionary<string, double> mechanismTimes = sessionHandler.CalculateTotalTimeForMechanisms(DateTime.Now);
 
+        
         foreach (var kvp in mechanismTimes)
         {
             Debug.Log($"{kvp.Key} - {kvp.Value} mins");
@@ -47,83 +45,18 @@ public class MechanismSceneHandler : MonoBehaviour
         updateMechanismTimeBoxes(mechanismTimes);
         updateTogglesBasedOnCSV();
 
-        PlutoComm.OnButtonReleased += onPlutoButtonReleased;
-
         if (exitButton != null)
             exitButton.onClick.AddListener(ExitScene);
 
         if (nextButton != null)
-            nextButton.onClick.AddListener(() =>
-            {
-                if (toggleSelected)  // Check the toggleSelected boolean
-                    LoadNextScene();
-                else
-                    Debug.LogWarning("Select at least one toggle to proceed.");
-            });
-        DeselectAllToggles();
-        // Attach listeners to the toggles to update the toggleSelected variable
-        StartCoroutine(DelayedAttachListeners());
-
-    }
-
-    IEnumerator DelayedAttachListeners()
-    {
-        yield return new WaitForSeconds(1f);  // Allow UI to fully initialize
-        AttachToggleListeners();
-    }
-
-    void DeselectAllToggles()
-    {
-        foreach (Transform child in toggleGroup.transform)
-        {
-            Toggle toggleComponent = child.GetComponent<Toggle>();
-            if (toggleComponent != null)
-            {
-                toggleComponent.isOn = false;  // Reset all toggles to off
-            }
-        }
-    }
-
-    void AttachToggleListeners()
-    {
-        // Attach onValueChanged listener to each toggle in the toggle group
-        foreach (Transform child in toggleGroup.transform)
-        {
-            Toggle toggleComponent = child.GetComponent<Toggle>();
-            if (toggleComponent != null)
-            {
-                // Update toggleSelected whenever a toggle's value changes
-                toggleComponent.onValueChanged.AddListener(delegate { CheckToggleStates(); });
-            }
-        }
-    }
-
-    void CheckToggleStates()
-    {
-        // Check if any toggle in the group is currently selected
-        toggleSelected = false;
-        foreach (Transform child in toggleGroup.transform)
-        {
-            Toggle toggleComponent = child.GetComponent<Toggle>();
-            if (toggleComponent != null && toggleComponent.isOn)
-            {
-                toggleSelected = true;
-                MechanismSelection.selectedOption = child.name;  // Store the selected toggle name
-                break;
-            }
-        }
+            nextButton.onClick.AddListener(LoadNextScene);
     }
 
     void Update()
     {
-        if (scene == true)
-        {
-            LoadNextScene();
-            scene = false;
-        }
-    }
 
-    void SetToggleState(string toggleName, string value)
+    }
+        void SetToggleState(string toggleName, string value)
     {
         Toggle targetToggle = FindToggleByName(toggleName);
 
@@ -179,24 +112,25 @@ public class MechanismSceneHandler : MonoBehaviour
         }
         return null;
     }
+            
 
     void updateMechanismTimeBoxes(Dictionary<string, double> mechanismTimes)
     {
         if (timePh_FE != null && mechanismTimes.ContainsKey("WFE"))
         {
             timePh_FE.text = $"Time: {mechanismTimes["WFE"]}";
-            timePh_FE.ForceMeshUpdate();
+            timePh_FE.ForceMeshUpdate(); // Force the text box to refresh
         }
 
         if (timePh_URD != null && mechanismTimes.ContainsKey("WURD"))
         {
             timePh_URD.text = $"Time: {mechanismTimes["WURD"]}";
-            timePh_URD.ForceMeshUpdate();
+            timePh_URD.ForceMeshUpdate(); 
         }
 
         if (timePh_PS != null && mechanismTimes.ContainsKey("PS"))
         {
-            timePh_PS.text = $"Time: {mechanismTimes["PS"]}";
+            timePh_PS.text = $"Time: {mechanismTimes["PS"]} ";
             timePh_PS.ForceMeshUpdate();
         }
 
@@ -205,6 +139,7 @@ public class MechanismSceneHandler : MonoBehaviour
             timePh_HOC.text = $"Time: {mechanismTimes["HOC"]}";
             timePh_HOC.ForceMeshUpdate();
         }
+
     }
 
     void updateTogglesBasedOnCSV()
@@ -217,10 +152,11 @@ public class MechanismSceneHandler : MonoBehaviour
                 string lastLine = lines[lines.Length - 1];
                 string[] values = lastLine.Split(',');
 
-                SetToggleState("WFE", values[7]);
-                SetToggleState("WUD", values[8]);
-                SetToggleState("FPS", values[9]);
-                SetToggleState("HOC", values[10]);
+                SetToggleState("wfe", values[7]);
+                SetToggleState("wurd", values[8]);
+                SetToggleState("fps", values[9]);
+                SetToggleState("hoc", values[10]);
+                //SetToggleState("knob", values[11]);
 
                 if (values.Length >= 10)
                 {
@@ -241,7 +177,7 @@ public class MechanismSceneHandler : MonoBehaviour
             Debug.LogError("CSV file not found at path: " + filePath);
         }
     }
-
+    
     void updateTimeBoxes(string time1, string time2, string time3, string time4)
     {
         if (feVal != null)
@@ -257,23 +193,14 @@ public class MechanismSceneHandler : MonoBehaviour
             hocVal.text = (time4.Trim() == "0" || string.IsNullOrEmpty(time4.Trim())) ? "" : " / " + time4.Trim() + " Mins";
     }
 
+
     void ExitScene()
     {
         SceneManager.LoadScene("welcome");
     }
 
-    public void onPlutoButtonReleased()
-    {
-        if (toggleSelected)  // Use the toggleSelected boolean to verify before scene change
-            scene = true;
-        else
-            Debug.LogWarning("Select at least one toggle to proceed.");
-    }
-
     void LoadNextScene()
     {
-        Debug.Log(MechanismSelection.selectedOption + " selected Option");
-        SceneManager.LoadScene("calibration");
+        //SceneManager.LoadScene("NextSceneName");
     }
-}
-
+} 

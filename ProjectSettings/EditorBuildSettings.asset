@@ -15,16 +15,7 @@ EditorBuildSettings:
     path: Assets/Scenes/chooseMech.unity
     guid: 066c3fcbb81e1cc4f804ee26f774bb16
   - enabled: 1
-    path: Assets/Scenes/calibration.unity
-    guid: d54c4d77b2d27fc45adda5c4e9c4ed2d
-  - enabled: 1
-    path: Assets/Scenes/choosegame.unity
-    guid: 7e9ea08a0abe6084293c60a93f6a199e
-  - enabled: 1
-    path: Assets/Scenes/pong_menu.unity
-    guid: c5c7fc2c8c6e549488e0af71fa6019f9
-  - enabled: 1
-    path: Assets/Scenes/pong_game.unity
-    guid: 8f188a9f7da915e4e96949b9bbbcb0d2
+    path: Assets/Scenes/summaryScene.unity
+    guid: 9ea6557cdd4880041a1be37a80a05e30
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
